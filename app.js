@@ -7,7 +7,6 @@ const methodOverride=require("method-override");
 const ejsMate=require("ejs-mate");
 const WrapAsync=require("./utils/WrapAsync.js");
 const ExpressError=require("./utils/ExpressError.js");
-//const { error } = require("console");
 const {listingschema}=require("./schema.js");
 
 app.set("view engine","ejs");
@@ -44,55 +43,53 @@ const validateListing=(req,res,next)=>{
 
 //index route
 
-app.get("/listing", async (req,res)=>{
+app.get("/listing", WrapAsync(async (req,res)=>{
     
     const allListing = await Listing.find({});
-    // console.log(allListing);
     res.render("listing/index.ejs",{allListing});
-});
+}));
 
 //new route
 app.get("/listing/new",(req,res)=>{
     res.render("listing/new.ejs");
-    //console.log("hi");
 })
 
 //show route
-app.get("/listing/:id",async (req,res)=>{
+app.get("/listing/:id", WrapAsync(async (req,res)=>{
     let {id}=req.params;
     const listing= await Listing.findById(id);
     //console.log(listing);
     res.render("listing/show.ejs",{listing});
-});
+}));
 
 //create route
-app.post("/listing",async(req,res)=>{
+app.post("/listing",WrapAsync(async(req,res)=>{
         let newListing=await new Listing(req.body.listing);
         newListing.save();
         res.redirect("/listing");  
         //next(err);
-   });
+   }));
 
 //Edit route
-app.get("/listing/:id/edit", async (req,res)=>{
+app.get("/listing/:id/edit", WrapAsync (async (req,res)=>{
     let {id}=req.params;
     const listing= await Listing.findById(id); 
     res.render("listing/edit.ejs",{listing});
-});
+}));
 
 //update route
-app.put("/listing/:id", async(req,res)=>{
+app.put("/listing/:id", WrapAsync(async(req,res)=>{
     let {id}=req.params;
     await Listing.findByIdAndUpdate(id,{...req.body.listing});
     res.redirect(`/listing/${id}`);
-});
+}));
 
 //delete route
-app.delete("/listing/:id", async (req,res)=>{
+app.delete("/listing/:id", WrapAsync(async (req,res)=>{
     let {id}=req.params;
     await Listing.findByIdAndDelete(id);
     res.redirect("/listing");
-});
+}));
 
 app.all("*",(err,req,res,next)=>{
     next(new ExpressError(404,"page not fount"));
@@ -108,4 +105,3 @@ app.listen(8080,()=>{
     console.log("listening on port 8080");
 });
 
-//hi
